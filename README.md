@@ -17,14 +17,18 @@ There are a few reasons.
   - easy to read, understand and modify.
 
 In the real world, we always encounter specification changes, like or not.
+
 So we need to have to care how to implement freatures with `flexible code`.
+
 In order to implement features with flexible code, `Separation by interest` is the key.
 
 ## 2. Concrete simple example to write better code with Ruby
 Let me explain the details of `Separation by interest` with a simple example below.
+
 The PaymentReport class wants to calculate the payment fee during the specific period.
+
 This code is bad, in my opinion, because total_payment_within_period handles many things, in spite of the method name.
-This method says "I calculate the payment during the specific period.".
+
 ```ruby
 # Bad
 class PaymentReport
@@ -49,6 +53,7 @@ end
 ```
 
 Let's separate logics by following `Separation by interest`.
+
 We do not have to do everyhting in one method.
 ```ruby
 # A little Better
@@ -84,12 +89,14 @@ end
 ```
 
 Wow!
+
 We just moved logics to new methods, but now `total_payment_within_period` method has only 2 lines!
 Now, the code inside the method is easier to understand.
 
 But we still have a problem.
-The `IF` logic at `filter_payed_customers` method is difficult to understand.
-And it does not seem to define this concrete logic here because the if conditions depend on payment_statement object, not payment_report object.
+
+The `IF` logic at `filter_payed_customers` method is difficult to understand.　And it does not seem to define this concrete logic here because the if conditions depend on payment_statement object, not payment_report object.
+
 So let's transfer the logics to where they should be.
 
 ```ruby
