@@ -3,11 +3,11 @@
 - This is inspired by [Sandi Metz' Rules For Developers - Thoughtbot](https://thoughtbot.com/blog/sandi-metz-rules-for-developers) and [Practical Object-Oriented Design in Ruby](https://www.amazon.co.jp/Practical-Object-Oriented-Design-Ruby-Addison-Wesley/dp/0321721330/ref=sr_1_6?__mk_ja_JP=%E3%82%AB%E3%82%BF%E3%82%AB%E3%83%8A&crid=2EGHAGFK7S380&keywords=object+oriented+programming&qid=1563603741&s=gateway&sprefix=object+ori%2Caps%2C295&sr=8-6). I recommend you to read them. :)
 
 ## Table of Contents
-1. The most important things when you write code
+1. One of the most important things when you write code
 2. Concrete simple example to write better code with Ruby
 3. Other tips to write cleaner codes (coming soon...)
 
-## 1. The most important things  when you write code
+## 1. One of the most important things  when you write code
 Although there are many theories, DRY / SOLID / design patterns or so on, in the world, one of the most important things is `Separation by interest` called Single Responsibility Principle in my opinion.
 
 There are a few reasons.
@@ -200,4 +200,5 @@ end
 Now, the code is cleaner and easy to understand!
 Each method concentrates on one thing, so it's easier to handle specification changes with smaller bad impacts to existing logics.
 
-to be continued...
+## License
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
