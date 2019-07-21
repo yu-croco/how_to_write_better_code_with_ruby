@@ -5,7 +5,7 @@
 ## Table of Contents
 1. One of the most important things when you write code
 2. Concrete simple example to write better code with Ruby
-3. Other tips to write cleaner codes (coming soon...)
+3. Other tips to write cleaner codes
 
 ## 1. One of the most important things  when you write code
 Although there are many theories, DRY / SOLID / design patterns or so on, in the world, one of the most important things is `Separation by interest` called Single Responsibility Principle in my opinion.
@@ -199,6 +199,189 @@ end
 
 Now, the code is cleaner and easy to understand!
 Each method concentrates on one thing, so it's easier to handle specification changes with smaller bad impacts to existing logics.
+
+## 3. Other tips to write cleaner codes
+Let me share you some tips to write cleaner code.
+
+## Duck Typing
+Objects know which class they belongs to and how to react against assined methods.
+
+So, all you have to do is to give a method to a object, instead of separate by conditions.
+
+The code below is really bad.
+This is because `1. 'when' clause grows easily when new employee type is added` and `2. calc_salary has to have big logic in a logic (It violates SRP!)`.
+```ruby
+# NotGood
+class Salary
+  def calc_salary(employees)
+    employees.each do |employee|
+      case employee
+      when FullTime
+        # write salary calculation for fulltime employee
+      when PartTimer
+        # write salary calculation for part time
+      when Outsourcing
+        # write salary calculation for outsourcing
+      end
+    end
+  end
+end
+```
+
+Let's just give a method to objects.
+Each object can react aganst calc_salary method.
+```ruby
+# Better
+class Salary
+  def calc_salary(employees)
+    employees.each do |employee|
+      # send samle method to all employee object because each object knows how to handle method
+      employee.calc_salary(self)
+  end
+end
+
+class FullTime
+  def calc_salary(data)
+    # write specific logic
+  end
+end
+
+class PartTimer
+  def calc_salary(data)
+    # write specific logic
+  end
+end
+
+class Outsourcing
+  def calc_salary(data)
+    # write specific logic
+  end
+end
+```
+
+### Lazy initialization
+You can save memory until you really use the method by using lazy initialization.
+
+Here is a simple example.
+
+In this case, `cry` method just returns string, but what if the ,method has big calculation logic?
+
+The logic at cry method will be evaluated only when it's really needed.
+
+In addition, the value will be cached as instance variable, so when you call twice at same instance object, cry method just returns @cry instead of evaluating the logic again.
+
+```ruby
+# Get data from DB every time when you call this method
+class Cat
+  def cry
+    'Meowwwwwww'
+  end
+end
+
+# if '@sleep' is not nil, it does not get data from DB
+class Cat
+  def cry
+    @cry ||= 'Meowwwwwww'
+  end
+end
+```
+
+If you want to write multi lines code, you can use `begin ~ end` like below.
+```ruby
+# usual
+def configure_setting
+  config = build_base_config
+  if config.valid_values?
+    @config = set_config(config)
+  else
+    @config = set_default_config(config)
+  end
+end
+
+def configure_setting
+  @config ||= begin
+    config = build_base_config
+    if config.valid_values?
+      set_config(config)
+    else
+      set_default_config(config)
+    end
+  end
+end
+```
+
+### Cleaner I/O
+We usually use `if`, but it let us understand difficultly. I mean it give you some stress to understand what the `if` return at last.
+
+The example below, if returns string, the contens of greeting. But it looks a little stressful to understand what `if` returns at last.
+
+```ruby
+# Not Good
+# I/O is not clear
+def greete(current_user)
+  if current_user.admin
+    greete = 'hello admin'
+  elsif current_user.special_user
+    greete = 'hello special user'
+  else
+    greete = 'hello user'
+  end
+  say_hello_to_user(greete)
+end
+```
+In this case, you can write code like this.
+Now it's easier to understand what `if` returns.
+```ruby
+# Better
+# I/O is clear
+def greete
+  greete =
+    if current_user.admin
+      'hello admin'
+    elsif current_user.special_user
+      'hello special user'
+    else
+      'hello user'
+    end
+  say_hello_to_user(greete)
+end
+```
+
+### Multiple declaration
+We usually declare a few temporal variable in a method, like below.
+```ruby
+# This code is Rails example
+# NotGood
+class NotebooksController < ApplicationController
+  def index
+    per = params[:per]
+    offset = params[:offset]
+    query_key = params[:q]
+    # more params...
+  end
+end
+```
+You can write like this.
+
+```ruby
+# Better
+class NotebooksController < ApplicationController
+  def index
+    per, offset, query_key =  set_attribute
+  end
+
+  private
+
+  def set_attribute
+    [
+      params[:per],
+      params[:offset],
+      params[:q],
+      # more params...
+    ]
+  end
+end
+```
 
 ## License
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
