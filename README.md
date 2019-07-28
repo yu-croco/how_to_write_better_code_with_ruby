@@ -32,16 +32,18 @@ This code is bad, in my opinion, because total_payment_within_period handles man
 ```ruby
 # Bad
 class PaymentReport
-  def initialize(start_date, end_date, customers)
+  attr_reader :start_date, :end_date, :customers
+
+def initialize(start_date, end_date, customers)
     @start_date = start_date
     @end_date = end_date
     @customers = customers
   end
 
-  def total_payment_within_period(customers)
+  def total_payment_within_period
     payed_customers = []
     customers.each do |customer|
-     if customer.payed_at >= @start_date && customer.payed_at <= @end_date && customer.status == 'confirmed'
+     if customer.payed_at >= start_date && customer.payed_at <= end_date && customer.status == 'confirmed'
       payed_customers << customer
     end
     total = 0
@@ -58,21 +60,23 @@ We do not have to do everyhting in one method.
 ```ruby
 # A little Better
 class PaymentReport
+  attr_reader :start_date, :end_date, :customers
+
   def initialize(start_date, end_date, customers)
     @start_date = start_date
     @end_date = end_date
     @customers = customers
   end
 
-  def total_payment_within_period(customers)
-    payed_customers = filter_payed_customers(customers) # <-- transfer logic
+  def total_payment_within_period
+    payed_customers = filter_payed_customers # <-- transfer logic
     calculate_payment(payed_customers) # <-- transfer logic
   end
 
   # just separate logic to outside of total_payment_within_period
-  def filter_payed_customers(customers)
+  def filter_payed_customers
     customers.each do |customer|
-      if customer.payed_at >= @start_date && customer.payed_at <= @end_date && customer.status == 'confirmed'
+      if customer.payed_at >= start_date && customer.payed_at <= end_date && customer.status == 'confirmed'
         payed_customers << customer
       end
     end
@@ -102,18 +106,20 @@ So let's transfer the logics to where they should be.
 ```ruby
 # Better
 class PaymentReport
+  attr_reader :start_date, :end_date, :customers
+
   def initialize(start_date, end_date, payment_statements)
     @start_date = start_date
     @end_date = end_date
     @payment_statements = payment_statements
   end
 
-  def total_payment_within_period(payment_statements)
-    payed_statements = filter_payed_customers(payment_statements)
+  def total_payment_within_period
+    payed_statements = filter_payed_customers
     calculate_payment(payed_statements)
   end
 
-  def filter_payed_customers(payment_statements)
+  def filter_payed_customers
     payed_statements = []
     payment_statements.each do |statement|
       if payment.countable? # <-- transfer logic
@@ -134,12 +140,19 @@ end
 class PaymentStatement
   attr_reader :start_date, :end_date, :status, :payed_at
 
-  # do one thing at one method and just call them!
-  def countable?(start_date, end_date)
-    payed_at_between?(start_date, end_date) && confirmed?
+  def initialize(start_date, end_date, status, payed_at)
+    @start_date = start_date
+    @end_date = end_date
+    @status = status
+    @payed_at = payed_at
   end
 
-  def payed_at_between?(start_date, end_date)
+# do one thing at one method and just call them!
+  def countable?
+    payed_at_between? && confirmed?
+  end
+
+  def payed_at_between?
     payed_at >= start_date && payed_at <= end_date
   end
 
@@ -156,19 +169,21 @@ I'd like to improve a little bit more by using convenient methods of Ruby.
 ```ruby
 # Good
 class PaymentReport
+  attr_reader :start_date, :end_date, :status, :payed_at
+
   def initialize(start_date, end_date, payment_statements)
     @start_date = start_date
     @end_date = end_date
     @payment_statements = payment_statements
   end
 
-  def total_payment_within_period(payment_statements)
-    payed_statements = filter_payed_customers(payment_statements)
+  def total_payment_within_period
+    payed_statements = filter_payed_customers
     calculate_payment(payed_statements)
   end
 
   # If you assign temporal Array or Hash, you may use each_with_object
-  def filter_payed_customers(payment_statements)
+  def filter_payed_customers
     payment_statements.each_with_object([]) do |arr, statement|
       arr << statement if payment.countable?
     end
@@ -183,11 +198,17 @@ end
 class PaymentStatement
   attr_reader :start_date, :end_date, :status, :payed_at
 
-  def countable?(start_date, end_date)
-    payed_at_between?(start_date, end_date) && confirmed?
+  def initialize(start_date, end_date, payment_statements)
+    @start_date = start_date
+    @end_date = end_date
+    @payment_statements = payment_statements
   end
 
-  def payed_at_between?(start_date, end_date)
+  def countable?
+    payed_at_between? && confirmed?
+  end
+
+  def payed_at_between?
     payed_at >= start_date && payed_at <= end_date
   end
 
